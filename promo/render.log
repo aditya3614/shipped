@@ -1,0 +1,16 @@
+frame 0/900  0.1s
+frame 60/900  7.8s
+frame 120/900  15.9s
+frame 180/900  31.3s
+frame 240/900  43.1s
+frame 300/900  51.2s
+frame 360/900  60.8s
+frame 420/900  72.0s
+frame 480/900  81.3s
+frame 540/900  100.6s
+frame 600/900  118.7s
+frame 660/900  133.7s
+frame 720/900  150.4s
+frame 780/900  168.0s
+frame 840/900  182.8s
+done [33m2700[39m images in 199.7 s
