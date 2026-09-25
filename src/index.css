@@ -1,0 +1,237 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Instrument Sans Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Newsreader Variable', ui-serif, Georgia, serif;
+  --font-mono: 'Geist Mono', ui-monospace, monospace;
+
+  --color-crimson: #a52a3c;
+  --color-crimson-600: #b73049;
+  --color-crimson-800: #7e1d2c;
+  --color-pink: #e8627a;
+  --color-blush: #fde8ec;
+  --color-maroon: #5a1a26;
+  --color-cream: #fbfaf6;
+  --color-ink: #17161a;
+  --color-muted: #6c6a70;
+  --color-line: #ebe7e0;
+  --color-leaf: #5fd38a;
+  --color-forest: #1f5c3a;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: var(--color-crimson);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: rgba(232, 98, 122, 0.3);
+}
+
+@layer components {
+  .sheet {
+    background: var(--color-cream);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.6) inset,
+      0 30px 80px -30px rgba(40, 0, 10, 0.55);
+  }
+
+  .btn-shine {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .btn-shine::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.28) 50%, transparent 70%);
+    transform: translateX(-120%);
+    transition: transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .btn-shine:hover::after {
+    transform: translateX(120%);
+  }
+}
+
+/* ---------- Card glass (layered, so utilities like `absolute` still win) ---------- */
+
+@layer components {
+  .glass-panel {
+    position: relative;
+    background: linear-gradient(135deg, var(--glass-a), var(--glass-b));
+    border: 1px solid var(--glass-border);
+    box-shadow:
+      inset 0 1px 0 var(--glass-shine),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.05),
+      0 24px 50px -28px rgba(0, 0, 0, 0.45);
+    /* No backdrop-filter: the card background is a smooth gradient, and a blur
+       breaks rendering inside the 3D tilt and wouldn't survive PNG export anyway. */
+  }
+
+  /* Specular sheen across the top-left of every glass surface. */
+  .glass-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(125deg, var(--glass-sheen) 0%, transparent 38%);
+  }
+}
+
+.card-grain {
+  opacity: 0.1;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---------- 3D tilt ---------- */
+
+.tilt-stage {
+  perspective: 1600px;
+}
+
+.tilt {
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transform-style: preserve-3d;
+  transition: transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: transform;
+}
+.tilt.is-tilting {
+  transition: transform 0.12s ease-out;
+}
+
+.tilt * {
+  transform-style: preserve-3d;
+}
+
+.depth-1 {
+  transform: translateZ(18px);
+}
+.depth-2 {
+  transform: translateZ(40px);
+}
+.depth-3 {
+  transform: translateZ(64px);
+}
+
+.tilt-glare {
+  pointer-events: none;
+  background: radial-gradient(520px circle at var(--gx, 50%) var(--gy, 50%), rgba(255, 255, 255, 0.4), transparent 45%);
+  mix-blend-mode: soft-light;
+  opacity: 0;
+  transition: opacity 0.5s;
+  transform: translateZ(80px);
+}
+.tilt.is-tilting .tilt-glare {
+  opacity: 1;
+}
+
+/* Freeze animations and flatten 3D while rendering the PNG. */
+.exporting,
+.exporting * {
+  animation: none !important;
+  transition: none !important;
+}
+.exporting .depth-1,
+.exporting .depth-2,
+.exporting .depth-3 {
+  transform: none !important;
+}
+.exporting .card-bg {
+  border-radius: 0 !important;
+}
+
+/* ---------- Motion ---------- */
+
+.rise {
+  animation: rise 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+.cell-in {
+  animation: cell-in 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes cell-in {
+  from {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+}
+
+.bar-in {
+  transform-origin: bottom;
+  animation: bar-in 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes bar-in {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+.bob {
+  animation: bob 5s ease-in-out infinite;
+}
+
+@keyframes bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.spin {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise,
+  .cell-in,
+  .bar-in,
+  .bob {
+    animation: none;
+  }
+  .tilt {
+    transform: none !important;
+  }
+  .btn-shine::after {
+    display: none;
+  }
+}
